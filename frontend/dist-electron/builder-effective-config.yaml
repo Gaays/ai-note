@@ -1,0 +1,32 @@
+directories:
+  output: dist-electron
+  buildResources: build
+appId: com.gaays.ai-note
+productName: AI Note Generator
+files:
+  - filter:
+      - dist/**/*
+      - electron/**/*
+      - node_modules/**/*
+extraResources:
+  - from: ../backend
+    to: backend
+    filter:
+      - '**/*'
+      - '!**/__pycache__'
+      - '!**/.*'
+win:
+  target: nsis
+  icon: public/favicon.ico
+mac:
+  target: dmg
+  icon: public/favicon.ico
+linux:
+  target: AppImage
+  icon: public/favicon.ico
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+electronVersion: 25.9.8

@@ -45,6 +45,22 @@ def create_app():
     ai_config_service = AIConfigService()
     file_utils = FileUtils()
     
+    # 添加请求日志中间件
+    @app.before_request
+    def log_request_info():
+        """记录请求开始信息"""
+        request.start_time = time.time()
+        logger.info(f"[REQUEST] {request.method} {request.url} - IP: {request.remote_addr} - User-Agent: {request.headers.get('User-Agent', 'Unknown')}")
+        if request.is_json and request.get_json():
+            logger.info(f"[REQUEST BODY] {request.get_json()}")
+    
+    @app.after_request
+    def log_response_info(response):
+        """记录请求结束信息"""
+        duration = round((time.time() - getattr(request, 'start_time', time.time())) * 1000, 2)
+        logger.info(f"[RESPONSE] {request.method} {request.url} - Status: {response.status_code} - Duration: {duration}ms")
+        return response
+    
     @app.route('/api/health', methods=['GET'])
     def health_check():
         """健康检查接口"""

@@ -13,10 +13,14 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
     "lint": "eslint . --fix",
-    "electron": "wait-on http://localhost:5173 && electron .",
-    "electron:dev": "concurrently \"pnpm run dev\" \"pnpm run electron\"",
+    "electron": "electron .",
+    "electron:dev": "concurrently \"pnpm run dev\" \"node scripts/electron-dev.js\"",
     "electron:build": "pnpm run build && electron-builder",
-    "electron:dist": "pnpm run build && electron-builder --publish=never"
+    "electron:dist": "pnpm run build && electron-builder --publish=never",
+    "electron:pack": "pnpm run build && electron-builder --dir",
+    "electron:clean": "rimraf dist dist-electron",
+    "postinstall": "electron-builder install-app-deps",
+    "rebuild": "electron-rebuild"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.1.0",
@@ -28,8 +32,49 @@
     "vue": "^3.3.4",
     "vue-router": "^4.2.4"
   },
-  "main": "electron/main.js",
+  "main": "electron/main.cjs",
   "homepage": "./",
+  "build": {
+    "appId": "com.gaays.ai-note",
+    "productName": "AI Note Generator",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "node_modules/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "../backend",
+        "to": "backend",
+        "filter": [
+          "**/*",
+          "!**/__pycache__",
+          "!**/.*"
+        ]
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "public/favicon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "public/favicon.ico"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "public/favicon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  },
   "devDependencies": {
     "@tsconfig/node18": "^18.2.0",
     "@types/node": "^18.16.19",
@@ -37,12 +82,14 @@
     "@vue/eslint-config-typescript": "^11.0.3",
     "@vue/tsconfig": "^0.4.0",
     "concurrently": "^8.2.0",
-    "electron": "^25.3.1",
-    "electron-builder": "^24.4.0",
+    "electron": "^25.9.8",
+    "electron-builder": "^24.13.3",
+    "electron-rebuild": "^3.2.9",
     "eslint": "^8.44.0",
     "eslint-plugin-vue": "^9.15.1",
     "jiti": "^1.18.2",
     "npm-run-all2": "^6.0.6",
+    "rimraf": "^5.0.1",
     "sass": "^1.91.0",
     "typescript": "^5.1.6",
     "vite": "^4.4.0",

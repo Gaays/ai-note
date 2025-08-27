@@ -11,6 +11,8 @@
 - **历史记录管理**: 完整的笔记历史记录和管理功能
 - **现代化界面**: 基于Vue 3和Element Plus的响应式UI
 - **实时进度显示**: 文件处理和笔记生成的实时进度反馈
+- **跨平台桌面应用**: 支持Windows、macOS、Linux桌面应用
+- **原生系统集成**: 文件拖拽、系统通知、菜单栏等原生体验
 
 ## 🛠️ 技术栈
 
@@ -33,10 +35,15 @@
 - **Google Generative AI** - Gemini模型接口
 - **SQLite** - 轻量级数据库
 
+### 桌面应用
+
+- **Electron** - 跨平台桌面应用框架
+- **Electron Builder** - 应用打包和分发工具
+
 ### 其他工具
 
 - **Git** - 版本控制
-- **Electron** - 桌面应用打包（可选）
+- **PNPM** - 高效的包管理器
 
 ## 📋 环境要求
 
@@ -108,9 +115,31 @@ pnpm dev
 
 前端应用将在 `http://localhost:5173` 启动
 
-### 4. 访问应用
+### 4. 桌面应用（可选）
 
-打开浏览器访问 `http://localhost:5173` 即可使用应用。
+#### 开发环境运行
+
+```bash
+cd frontend
+# 同时启动前端和Electron
+pnpm run electron:dev
+```
+
+#### 构建桌面应用
+
+```bash
+cd frontend
+# 构建并生成安装包
+pnpm run electron:build
+
+# 仅打包（不生成安装包）
+pnpm run electron:pack
+```
+
+### 5. 访问应用
+
+- **Web版本**: 打开浏览器访问 `http://localhost:5173`
+- **桌面版本**: 运行构建的桌面应用或使用 `pnpm run electron:dev`
 
 ## 📖 使用说明
 
@@ -171,9 +200,18 @@ video-note/
 │   │   ├── components/     # 通用组件
 │   │   ├── services/       # API服务
 │   │   ├── stores/         # 状态管理
+│   │   ├── composables/    # Vue组合式函数
 │   │   └── router/         # 路由配置
+│   ├── electron/           # Electron桌面应用
+│   │   ├── main.js         # 主进程
+│   │   ├── preload.js      # 预加载脚本
+│   │   └── config.js       # Electron配置
 │   ├── package.json        # Node.js依赖
-│   └── vite.config.ts      # Vite配置
+│   ├── vite.config.ts      # Vite配置
+│   ├── electron-dev.js     # Electron开发启动脚本
+│   ├── .env.electron       # Electron环境变量
+│   ├── electron.d.ts       # Electron类型定义
+│   └── ELECTRON.md         # Electron使用文档
 ├── Output/                 # 生成的笔记文件
 ├── Subtitles/              # 提取的字幕文件
 ├── Temp/                   # 临时文件
@@ -201,6 +239,21 @@ video-note/
 - **small**: 较好精度
 - **medium**: 更好精度
 - **large**: 最高精度，速度较慢
+
+### Electron桌面应用配置
+
+桌面应用支持以下平台和格式：
+
+- **Windows**: NSIS安装包 (.exe)
+- **macOS**: DMG磁盘映像 (.dmg)
+- **Linux**: AppImage (.AppImage) 和 Debian包 (.deb)
+
+配置文件：
+- `package.json` - 构建配置和依赖
+- `electron/config.js` - 应用运行时配置
+- `.env.electron` - 环境变量配置
+
+详细配置说明请参考 `frontend/ELECTRON.md`
 
 ### 📥 Whisper下载链接
 

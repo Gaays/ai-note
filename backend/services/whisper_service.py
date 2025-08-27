@@ -10,12 +10,19 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 import logging
+import tempfile
 
 try:
     from faster_whisper import WhisperModel
 except ImportError:
     WhisperModel = None
     logging.warning("faster-whisper not installed, using mock implementation")
+
+try:
+    from ffmpy import FFmpeg
+except ImportError:
+    FFmpeg = None
+    logging.warning("ffmpy not installed, audio preprocessing will be disabled")
 
 from config import Config
 from utils.file_utils import FileUtils
@@ -220,6 +227,7 @@ class WhisperService:
     
     def extract_subtitle(self, file_path: str, model_name: str = None, language: str = 'auto') -> Dict[str, Any]:
         """提取字幕"""
+        preprocessed_file = None
         try:
             # 验证文件
             if not os.path.exists(file_path):
@@ -248,9 +256,13 @@ class WhisperService:
                 # 模拟模式
                 return self._mock_extract_subtitle(file_path)
             
-            # 执行转录
+            # 使用FFmpeg预处理音频
+            logger.info("开始音频预处理...")
+            preprocessed_file = self._preprocess_audio(file_path)
+            
+            # 执行转录（使用预处理后的文件）
             segments, info = self.current_model.transcribe(
-                file_path,
+                preprocessed_file,
                 language=None if language == 'auto' else language,
                 beam_size=5,
                 best_of=5,
@@ -292,6 +304,10 @@ class WhisperService:
                 'success': False,
                 'message': f'字幕提取失败: {str(e)}'
             }
+        finally:
+            # 清理预处理产生的临时文件
+            if preprocessed_file and preprocessed_file != file_path:
+                self._cleanup_temp_file(preprocessed_file)
     
     def _mock_extract_subtitle(self, file_path: str) -> Dict[str, Any]:
         """模拟字幕提取（用于测试）"""
@@ -315,6 +331,93 @@ class WhisperService:
             'model_used': self.current_model_name
         }
     
+    def _preprocess_audio(self, input_path: str) -> str:
+        """使用FFmpeg预处理音频文件
+        
+        Args:
+            input_path: 输入音频/视频文件路径
+            
+        Returns:
+            预处理后的MP3文件路径
+        """
+        if FFmpeg is None:
+            logger.warning("FFmpeg未安装，跳过音频预处理")
+            return input_path
+            
+        try:
+            logger.info(f"开始音频预处理: {input_path}")
+            
+            # 创建项目内的Temp文件夹
+            project_root = Path(__file__).parent.parent.parent  # 从backend/services回到项目根目录
+            temp_dir = project_root / "Temp"
+            temp_dir.mkdir(exist_ok=True)
+            
+            # 生成唯一的临时文件名
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
+            temp_output = temp_dir / f"preprocessed_audio_{timestamp}.mp3"
+            logger.debug(f"临时输出文件: {temp_output}")
+            
+            # 使用ffmpy构建FFmpeg命令：格式转换 + 降噪 + 音量标准化
+            ff = FFmpeg(
+                inputs={input_path: None},
+                outputs={
+                    str(temp_output): [
+                        '-acodec', 'mp3',
+                        '-ab', '128k',
+                        '-ar', '16000',  # 采样率设为16kHz，适合语音识别
+                        '-ac', '1',      # 单声道
+                        # 音频滤镜：降噪 + 音量标准化
+                        '-af', 'highpass=f=200,lowpass=f=3000,anlmdn=s=0.00001,loudnorm=I=-16:TP=-1.5:LRA=11',
+                        '-y'  # 覆盖输出文件
+                    ]
+                }
+            )
+            
+            logger.info(f"执行FFmpeg命令: {ff.cmd}")
+            
+            # 执行FFmpeg命令
+            ff.run()
+            
+            # 检查输出文件是否存在
+            if temp_output.exists():
+                file_size = temp_output.stat().st_size
+                logger.info(f"音频预处理成功完成: {temp_output} (文件大小: {file_size} bytes)")
+                return str(temp_output)
+            else:
+                logger.error("FFmpeg执行完成但输出文件不存在")
+                return input_path
+            
+        except Exception as e:
+            logger.error(f"音频预处理失败，详细错误: {str(e)}")
+            logger.exception("音频预处理异常堆栈:")
+            return input_path
+    
+    def _cleanup_temp_file(self, file_path: str) -> None:
+        """清理临时文件"""
+        try:
+            if not file_path or not os.path.exists(file_path):
+                return
+                
+            file_path_obj = Path(file_path)
+            project_root = Path(__file__).parent.parent.parent
+            temp_dir = project_root / "Temp"
+            
+            # 只清理项目内Temp文件夹中的文件
+            if temp_dir in file_path_obj.parents or file_path_obj.parent == temp_dir:
+                os.remove(file_path)
+                logger.debug(f"已清理临时文件: {file_path}")
+                
+                # 如果Temp文件夹为空，保留文件夹但清理内容
+                try:
+                    if temp_dir.exists() and not any(temp_dir.iterdir()):
+                        logger.debug("Temp文件夹已清空")
+                except:
+                    pass
+            else:
+                logger.debug(f"跳过清理非项目临时文件: {file_path}")
+        except Exception as e:
+            logger.warning(f"清理临时文件失败: {e}")
+
     def _save_subtitle_file(self, original_file_path: str, segments: List[Dict]) -> str:
         """保存字幕文件"""
         try:

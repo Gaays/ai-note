@@ -1297,7 +1297,7 @@ onActivated(async () => {
 
             .subtitle-name {
               font-weight: 500;
-              color: #303133;
+              color: #fff;
               margin-bottom: 4px;
               white-space: nowrap;
               overflow: hidden;
