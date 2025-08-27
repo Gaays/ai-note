@@ -1,0 +1,24 @@
+# Flask Web Framework
+Flask
+Flask-CORS
+
+# Audio Processing
+faster-whisper
+ffmpeg-python
+pydub
+
+# HTTP Requests and AI Models
+requests
+openai
+anthropic
+google-generativeai
+
+# Utilities
+python-dotenv
+click
+
+# Data Processing
+numpy
+
+# Logging
+loguru

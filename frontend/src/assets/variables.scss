@@ -1,0 +1,58 @@
+// Sass变量文件
+
+// AI科技风颜色变量
+$primary-color: #00d4ff; // 科技蓝
+$primary-dark: #0099cc; // 深科技蓝
+$secondary-color: #00ff88; // 科技绿
+$accent-color: #ff6b35; // 橙色点缀
+$warning-color: #fbbf24;
+
+// 渐变色变量
+$gradient-primary: linear-gradient(135deg, #00d4ff 0%, #0099cc 50%, #00ff88 100%);
+$gradient-secondary: linear-gradient(135deg, #0099cc 0%, #00d4ff 100%);
+$gradient-accent: linear-gradient(135deg, #00ff88 0%, #00d4ff 100%);
+$gradient-dark: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+
+// 文本颜色
+$text-primary: #ffffff;
+$text-secondary: #b0c4de;
+$text-placeholder: #6b7280;
+$text-accent: #00d4ff;
+
+// 边框和背景
+$border-color: #2d3748;
+$background-light: #0f172a; // 深色背景
+$background-card: #1e293b; // 卡片背景
+$background-hover: rgba(0, 212, 255, 0.1);
+$background-active: rgba(0, 212, 255, 0.2);
+$background-glass: rgba(30, 41, 59, 0.8); // 玻璃态效果
+
+// 间距变量
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 12px;
+$spacing-lg: 16px;
+$spacing-xl: 20px;
+$spacing-xxl: 24px;
+
+// 圆角变量
+$border-radius-sm: 4px;
+$border-radius-md: 6px;
+$border-radius-lg: 8px;
+
+// 阴影变量
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+$shadow-md: 2px 0 6px rgba(0, 0, 0, 0.1);
+
+// 字体变量
+$font-size-sm: 12px;
+$font-size-md: 14px;
+$font-size-lg: 16px;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+
+// 响应式断点
+$breakpoint-sm: 768px;
+$breakpoint-md: 1200px;
+$breakpoint-lg: 1400px;
