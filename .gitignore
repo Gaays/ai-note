@@ -53,7 +53,12 @@ node_modules/
 # Frontend build
 frontend/dist/
 frontend/dist-ssr/
+frontend/dist-electron/
 frontend/*.local
+
+# Backend build
+backend/dist/
+backend/build/
 
 # Editor directories and files
 .vscode/
@@ -88,6 +93,9 @@ Engine/
 *.db
 *.sqlite
 *.sqlite3
+
+# AI Configuration (contains sensitive API keys)
+backend/config/ai_config.json
 
 # Cache
 .cache/
