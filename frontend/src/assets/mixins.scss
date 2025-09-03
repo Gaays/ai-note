@@ -1,5 +1,5 @@
 // Sass混入文件
-@import './variables';
+@use './variables' as *;
 
 // 卡片样式混入
 @mixin card-style {

@@ -1143,7 +1143,8 @@ onActivated(async () => {
 </template>
 
 <style lang="scss" scoped>
-@import "@/assets/mixins.scss";
+@use "@/assets/variables.scss" as *;
+@use "@/assets/mixins.scss" as *;
 
 .notes-layout {
   display: flex;

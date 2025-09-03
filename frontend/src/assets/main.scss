@@ -1,6 +1,6 @@
+@use './variables' as *;
+@use './mixins' as *;
 @import './base.css';
-@import './variables';
-@import './mixins';
 
 #app {
   font-weight: normal;

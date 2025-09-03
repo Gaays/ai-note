@@ -1,94 +1,72 @@
-import { contextBridge, ipcRenderer } from 'electron'
+const { contextBridge, ipcRenderer } = require('electron')
 
-// 暴露安全的API给渲染进程
+// 暴露给渲染进程的API
 contextBridge.exposeInMainWorld('electronAPI', {
   // 应用信息
   getAppVersion: () => ipcRenderer.invoke('get-app-version'),
-  getAppPath: (name) => ipcRenderer.invoke('get-app-path', name),
-  getResourcePath: () => ipcRenderer.invoke('get-resource-path'),
-  getAppConfig: () => ipcRenderer.invoke('get-app-config'),
-  getSupportedFormats: () => ipcRenderer.invoke('get-supported-formats'),
-  getDefaultPaths: () => ipcRenderer.invoke('get-default-paths'),
-  getAppInfo: () => ipcRenderer.invoke('get-app-info'),
   
   // 对话框
   showMessageBox: (options) => ipcRenderer.invoke('show-message-box', options),
   showOpenDialog: (options) => ipcRenderer.invoke('show-open-dialog', options),
   showSaveDialog: (options) => ipcRenderer.invoke('show-save-dialog', options),
   
-  // 文件系统操作
+  // 文件系统
   readFile: (filePath) => ipcRenderer.invoke('read-file', filePath),
   writeFile: (filePath, content) => ipcRenderer.invoke('write-file', filePath, content),
-  checkFileExists: (filePath) => ipcRenderer.invoke('check-file-exists', filePath),
+  fileExists: (filePath) => ipcRenderer.invoke('file-exists', filePath),
   createDirectory: (dirPath) => ipcRenderer.invoke('create-directory', dirPath),
   
-  // 后端服务管理
-  startBackend: () => ipcRenderer.invoke('start-backend'),
-  stopBackend: () => ipcRenderer.invoke('stop-backend'),
+  // 后端服务
+  startBackendService: () => ipcRenderer.invoke('start-backend-service'),
+  stopBackendService: () => ipcRenderer.invoke('stop-backend-service'),
   getBackendStatus: () => ipcRenderer.invoke('get-backend-status'),
   
   // 外部链接
   openExternal: (url) => ipcRenderer.invoke('open-external', url),
   
   // 窗口控制
-  minimizeWindow: () => ipcRenderer.invoke('minimize-window'),
-  toggleMaximizeWindow: () => ipcRenderer.invoke('toggle-maximize-window'),
-  closeWindow: () => ipcRenderer.invoke('close-window'),
   restartApp: () => ipcRenderer.invoke('restart-app'),
+  minimizeWindow: () => ipcRenderer.invoke('minimize-window'),
+  maximizeWindow: () => ipcRenderer.invoke('maximize-window'),
+  unmaximizeWindow: () => ipcRenderer.invoke('unmaximize-window'),
+  closeWindow: () => ipcRenderer.invoke('close-window'),
   
-  // 文件选择器（预设配置）
-  selectVideoFile: () => ipcRenderer.invoke('show-open-dialog', {
-    title: '选择音视频文件',
-    filters: [
-      {
-        name: '音视频文件',
-        extensions: ['mp4', 'avi', 'mov', 'mkv', 'mp3', 'wav', 'flac', 'm4a', 'webm', 'ogg']
-      },
-      { name: '所有文件', extensions: ['*'] }
-    ],
-    properties: ['openFile']
-  }),
+  // 路径相关
+  getPath: (name) => ipcRenderer.invoke('get-path', name),
   
-  selectOutputFolder: () => ipcRenderer.invoke('show-open-dialog', {
-    title: '选择输出文件夹',
-    properties: ['openDirectory']
-  }),
+  // 应用配置
+  getAppConfig: () => ipcRenderer.invoke('get-app-config'),
   
-  saveNoteFile: (defaultPath) => ipcRenderer.invoke('show-save-dialog', {
-    title: '保存笔记文件',
-    defaultPath: defaultPath,
-    filters: [
-      { name: 'Markdown文件', extensions: ['md'] },
-      { name: '文本文件', extensions: ['txt'] },
-      { name: '所有文件', extensions: ['*'] }
-    ]
-  }),
+  // 支持的格式
+  getSupportedFormats: () => ipcRenderer.invoke('get-supported-formats'),
   
-  selectSubtitleFile: () => ipcRenderer.invoke('show-open-dialog', {
-    title: '选择字幕文件',
-    filters: [
-      {
-        name: '字幕文件',
-        extensions: ['srt', 'vtt', 'ass', 'ssa']
-      },
-      { name: '所有文件', extensions: ['*'] }
-    ],
-    properties: ['openFile']
-  }),
+  // 默认路径
+  getDefaultPaths: () => ipcRenderer.invoke('get-default-paths'),
   
-  selectConfigFile: () => ipcRenderer.invoke('show-open-dialog', {
-    title: '选择配置文件',
-    filters: [
-      { name: 'JSON文件', extensions: ['json'] },
-      { name: '所有文件', extensions: ['*'] }
-    ],
-    properties: ['openFile']
-  })
+  // 应用信息
+  getAppInfo: () => ipcRenderer.invoke('get-app-info'),
+  
+  // 文件选择
+  selectVideoFile: () => ipcRenderer.invoke('select-video-file'),
+  selectSubtitleFile: () => ipcRenderer.invoke('select-subtitle-file'),
+  selectExportPath: () => ipcRenderer.invoke('select-export-path'),
+  
+  // 日志功能
+  logger: {
+    info: (message, ...args) => ipcRenderer.invoke('log-info', message, ...args),
+    warn: (message, ...args) => ipcRenderer.invoke('log-warn', message, ...args),
+    error: (message, ...args) => ipcRenderer.invoke('log-error', message, ...args),
+    debug: (message, ...args) => ipcRenderer.invoke('log-debug', message, ...args),
+    getLogDirectory: () => ipcRenderer.invoke('get-log-directory'),
+    getLogFiles: () => ipcRenderer.invoke('get-log-files')
+  }
 })
 
-// 平台信息
+// 暴露平台信息
 contextBridge.exposeInMainWorld('platform', {
   isWindows: process.platform === 'win32',
   isMac: process.platform === 'darwin',
   isLinux: process.platform === 'linux'
 })
+
+console.log('Preload script loaded successfully')

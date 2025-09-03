@@ -11,7 +11,8 @@ const config = {
     backend: {
       host: 'localhost',
       port: 5000,
-      path: path.join(__dirname, '../../backend')
+      path: path.join(__dirname, '../../backend'),
+      executable: 'app.py'
     },
     frontend: {
       url: 'http://localhost:5173'
@@ -28,7 +29,8 @@ const config = {
     backend: {
       host: 'localhost',
       port: 5000,
-      path: path.join(process.resourcesPath, 'backend')
+      path: path.join(process.resourcesPath, 'backend', 'video-note-backend'),
+      executable: 'video-note-backend.exe'
     },
     frontend: {
       file: path.join(__dirname, '../dist/index.html')

@@ -73,8 +73,8 @@ const menuItems = [
 </template>
 
 <style lang="scss" scoped>
-@import "@/assets/variables.scss";
-@import "@/assets/mixins.scss";
+@use "@/assets/variables.scss" as *;
+@use "@/assets/mixins.scss" as *;
 
 .app-container {
   display: flex;
